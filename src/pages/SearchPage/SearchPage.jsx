@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import SearchBar from "../../omponents/SearchBar/SearchBar";
+import SearchBar from "../../Components/SearchBar/SearchBar";
 import "./SearchPage.css";
 
 function SearchPage() {
@@ -21,7 +21,7 @@ function SearchPage() {
         setIsLoading(false);
       })
       .catch(() => {
-        setError("Could not load buildings. Please try again.");
+        setError("Could not load properties. Please try again.");
         setIsLoading(false);
       });
   }, []);
@@ -96,7 +96,7 @@ function SearchPage() {
   return (
     <div className="search-page">
       <header className="search-page-header">
-        <h1>Find a rental building</h1>
+        <h1>Find a rental property</h1>
         <p>
           Search by name, address, city, or zip. Filter by age, availability,
           and size.
@@ -119,7 +119,7 @@ function SearchPage() {
           </div>
 
           <div className="filter-group">
-            <p className="filter-label">Building age</p>
+            <p className="filter-label">Property age</p>
             <label>
               <input
                 type="radio"
@@ -237,7 +237,7 @@ function SearchPage() {
             <div className="results-header">
               <p className="results-count">
                 Showing <strong>{results.length}</strong> of {properties.length}{" "}
-                buildings
+                properties
               </p>
 
               <select
@@ -246,8 +246,8 @@ function SearchPage() {
                 className="results-sort"
               >
                 <option value="default">Best match</option>
-                <option value="newest">Newest buildings</option>
-                <option value="oldest">Oldest buildings</option>
+                <option value="newest">Newest properties</option>
+                <option value="oldest">Oldest properties</option>
                 <option value="cheapest">Rent: low to high</option>
                 <option value="biggest">Most apartments</option>
               </select>
@@ -265,7 +265,7 @@ function SearchPage() {
           {!isLoading && !error && results.length === 0 && (
             <div className="empty-state">
               <div className="empty-state-icon">🔎</div>
-              <h3>No buildings match your search</h3>
+              <h3>No properties match your search</h3>
               <p>Try a different search term or clear some filters.</p>
             </div>
           )}
@@ -281,7 +281,7 @@ function SearchPage() {
 
                 return (
                   <Link
-                    to={`/buildings/${p.id}`}
+                    to={`/properties/${p.id}`}
                     key={p.id}
                     className="property-card"
                   >

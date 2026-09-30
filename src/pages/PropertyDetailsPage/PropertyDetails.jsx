@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import "./BuildingDetailsPage.css";
+import "./PropertyDetailsPage.css";
 
-function BuildingDetailsPage() {
+function PropertyDetailsPage() {
   const { id } = useParams();
-  const [building, setBuilding] = useState(null);
+  const [property, setProperty] = useState(null);
   const [related, setRelated] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,9 +15,9 @@ function BuildingDetailsPage() {
       .then((data) => {
         const found = data.find((p) => String(p.id) === id);
         if (!found) {
-          setError("Building not found.");
+          setError("Property not found.");
         } else {
-          setBuilding(found);
+          setProperty(found);
           setRelated(
             data.filter((p) => String(p.id) !== id && p.city === found.city).slice(0, 3)
           );
@@ -25,7 +25,7 @@ function BuildingDetailsPage() {
         setIsLoading(false);
       })
       .catch(() => {
-        setError("Could not load building.");
+        setError("Could not load property.");
         setIsLoading(false);
       });
   }, [id]);
@@ -55,10 +55,10 @@ function BuildingDetailsPage() {
     );
   }
 
-  const age = new Date().getFullYear() - building.yearBuilt;
-  const vacant = building.totalUnits - building.occupiedUnits;
+  const age = new Date().getFullYear() - property.yearBuilt;
+  const vacant = property.totalUnits - property.occupiedUnits;
   const occupancy = Math.round(
-    (building.occupiedUnits / building.totalUnits) * 100
+    (property.occupiedUnits / property.totalUnits) * 100
   );
 
   return (
@@ -69,7 +69,7 @@ function BuildingDetailsPage() {
 
       <header className="details-header">
         <div className="details-title">
-          <h1>{building.name}</h1>
+          <h1>{property.name}</h1>
           <div className="details-badges">
             {vacant > 0 ? (
               <span className="badge badge-success">{vacant} vacant</span>
@@ -80,7 +80,7 @@ function BuildingDetailsPage() {
           </div>
         </div>
         <p className="details-address">
-          📍 {building.address}, {building.city} {building.zip}
+          📍 {property.address}, {property.city} {property.zip}
         </p>
       </header>
 
@@ -93,7 +93,7 @@ function BuildingDetailsPage() {
           <div className="details-bar-fill" style={{ width: `${occupancy}%` }} />
         </div>
         <p className="details-occupancy-note">
-          {building.occupiedUnits} of {building.totalUnits} apartments occupied
+          {property.occupiedUnits} of {property.totalUnits} apartments occupied
         </p>
       </section>
 
@@ -104,16 +104,16 @@ function BuildingDetailsPage() {
             <li>
               <span>Built</span>
               <strong>
-                {building.yearBuilt} ({age} yrs)
+                {property.yearBuilt} ({age} yrs)
               </strong>
             </li>
             <li>
               <span>Total apartments</span>
-              <strong>{building.totalUnits}</strong>
+              <strong>{property.totalUnits}</strong>
             </li>
             <li>
               <span>Occupied</span>
-              <strong>{building.occupiedUnits}</strong>
+              <strong>{property.occupiedUnits}</strong>
             </li>
             <li>
               <span>Vacant</span>
@@ -127,7 +127,7 @@ function BuildingDetailsPage() {
           <ul>
             <li>
               <span>Starting from</span>
-              <strong>${building.rentFrom}/mo</strong>
+              <strong>${property.rentFrom}/mo</strong>
             </li>
           </ul>
         </section>
@@ -142,7 +142,7 @@ function BuildingDetailsPage() {
               </strong>
             </li>
             <li>
-              <span>Building age</span>
+              <span>Property age</span>
               <strong>{age <= 5 ? "New" : `${age} years`}</strong>
             </li>
           </ul>
@@ -151,11 +151,11 @@ function BuildingDetailsPage() {
 
       {related.length > 0 && (
         <section className="details-related">
-          <h2>Other buildings in {building.city}</h2>
+          <h2>Other properties in {property.city}</h2>
           <div className="related-grid">
             {related.map((p) => (
               <Link
-                to={`/buildings/${p.id}`}
+                to={`/properties/${p.id}`}
                 key={p.id}
                 className="related-card"
               >
@@ -171,4 +171,4 @@ function BuildingDetailsPage() {
   );
 }
 
-export default BuildingDetailsPage;
+export default PropertyDetailsPage;

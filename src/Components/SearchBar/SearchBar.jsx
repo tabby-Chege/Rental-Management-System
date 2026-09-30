@@ -4,12 +4,10 @@ import "./SearchBar.css";
 function SearchBar({ onSearch, isLoading }) {
   const [query, setQuery] = useState("");
 
-  // Wait 400ms after user stops typing before calling onSearch
   useEffect(() => {
     const timer = setTimeout(() => {
       onSearch(query);
     }, 400);
-
     return () => clearTimeout(timer);
   }, [query, onSearch]);
 
@@ -19,17 +17,15 @@ function SearchBar({ onSearch, isLoading }) {
 
   return (
     <div className="search-bar">
-      <span className="search-bar-icon" aria-hidden="true">
-        🔍
-      </span>
+      <span className="search-bar-icon" aria-hidden="true">🔍</span>
 
       <input
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search buildings, addresses, or zips..."
+        placeholder="Search properties, addresses, or zips..."
         className="search-bar-input"
-        aria-label="Search buildings"
+        aria-label="Search properties"
       />
 
       {isLoading && <span className="search-bar-spinner" aria-label="Loading" />}
