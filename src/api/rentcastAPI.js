@@ -1,14 +1,12 @@
- import sampleProperties from "./sampleProperties.json";
+import sampleProperties from "../data/sampleProperties.json";
 
 const BASE_URL = "https://api.rentcast.io/v1";
 const API_KEY = import.meta.env.VITE_RENTCAST_API_KEY;
-// When true, no real requests are made and saved sample data is used.
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
-// Remembers results so repeating a search doesn't use another request.
+// Remembers results so the same search doesn't use another request
 const cache = new Map();
 
-// Shared helper: every API call goes through here.
 async function request(path, params = {}) {
   const query = new URLSearchParams(params).toString();
   const url = `${BASE_URL}${path}${query ? `?${query}` : ""}`;
@@ -33,18 +31,14 @@ async function request(path, params = {}) {
   return data;
 }
 
-// Returns an array of properties for a US city.
-// Example: searchProperties("Austin", "TX")
-// An empty array means no results; an Error means something went wrong.
+// Returns an array of properties for a US city, e.g. searchProperties("Austin", "TX")
 export async function searchProperties(city, state, limit = 20) {
   if (USE_MOCK) return sampleProperties;
   return request("/properties", { city, state, limit });
 }
 
-// Returns one property by its id, or null if it isn't found (mock mode).
+// Returns one property by id, or null in mock mode if not found
 export async function getPropertyById(id) {
-  if (USE_MOCK) {
-    return sampleProperties.find((property) => property.id === id) ?? null;
-  }
+  if (USE_MOCK) return sampleProperties.find((p) => p.id === id) ?? null;
   return request(`/properties/${encodeURIComponent(id)}`);
 }
