@@ -1,42 +1,47 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "../../Components/SearchBar/SearchBar";
+import { searchProperties } from "../../api/rentcastAPI";
+import { normalizeProperty } from "../../utils/propertyAdapter";
 import "./SearchPage.css";
-
 function SearchPage() {
   const [properties, setProperties] = useState([]);
   const [query, setQuery] = useState("");
   const [ageFilter, setAgeFilter] = useState("all");
-  const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [sizeFilter, setSizeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("default");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetch("/data/properties.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setProperties(data);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setError("Could not load properties. Please try again.");
-        setIsLoading(false);
-      });
-  }, []);
+useEffect(() => {
+  async function loadProperties() {
+    try {
+      const data = await searchProperties("Austin", "TX");
+      const normalizedProperties = data.map(normalizeProperty);
 
-  function matchesSearch(p) {
-    if (!query) return true;
-    const t = query.toLowerCase();
-    return (
-      p.name.toLowerCase().includes(t) ||
-      p.address.toLowerCase().includes(t) ||
-      p.city.toLowerCase().includes(t) ||
-      p.zip.toLowerCase().includes(t)
-    );
+      setProperties(normalizedProperties);
+    } catch (err) {
+      setError(err.message || "Could not load properties. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
+  loadProperties();
+}, []);
+ function matchesSearch(p) {
+  if (!query) return true;
+
+  const t = query.toLowerCase();
+
+  return (
+    p.name.toLowerCase().includes(t) ||
+    p.address.toLowerCase().includes(t) ||
+    p.city.toLowerCase().includes(t) ||
+    p.state.toLowerCase().includes(t) ||
+    p.zip.toLowerCase().includes(t)
+  );
+}
   function matchesAge(p) {
     if (ageFilter === "all") return true;
     const age = new Date().getFullYear() - p.yearBuilt;
@@ -46,61 +51,70 @@ function SearchPage() {
     return true;
   }
 
-  function matchesAvailability(p) {
-    if (availabilityFilter === "all") return true;
-    const vacant = p.totalUnits - p.occupiedUnits;
-    if (availabilityFilter === "available") return vacant > 0;
-    if (availabilityFilter === "full") return vacant === 0;
-    return true;
-  }
+function matchesSize(p) {
+  if (sizeFilter === "all") return true;
 
-  function matchesSize(p) {
-    if (sizeFilter === "all") return true;
-    const u = p.totalUnits;
-    if (sizeFilter === "small") return u <= 10;
-    if (sizeFilter === "medium") return u > 10 && u <= 50;
-    if (sizeFilter === "large") return u > 50;
-    return true;
-  }
+  const size = Number(p.squareFootage);
 
+  if (!Number.isFinite(size)) return false;
+
+  if (sizeFilter === "small") return size < 800;
+  if (sizeFilter === "medium") return size >= 800 && size <= 1500;
+  if (sizeFilter === "large") return size > 1500;
+
+  return true;
+}
   let results = properties.filter(
     (p) =>
       matchesSearch(p) &&
       matchesAge(p) &&
-      matchesAvailability(p) &&
       matchesSize(p)
   );
 
-  if (sortBy === "newest") {
-    results = [...results].sort((a, b) => b.yearBuilt - a.yearBuilt);
-  } else if (sortBy === "oldest") {
-    results = [...results].sort((a, b) => a.yearBuilt - b.yearBuilt);
-  } else if (sortBy === "cheapest") {
-    results = [...results].sort((a, b) => a.rentFrom - b.rentFrom);
-  } else if (sortBy === "biggest") {
-    results = [...results].sort((a, b) => b.totalUnits - a.totalUnits);
-  }
+if (sortBy === "newest") {
+  results = [...results].sort((a, b) => {
+    if (a.yearBuilt == null) return 1;
+    if (b.yearBuilt == null) return -1;
+
+    return b.yearBuilt - a.yearBuilt;
+  });
+} else if (sortBy === "oldest") {
+  results = [...results].sort((a, b) => {
+    if (a.yearBuilt == null) return 1;
+    if (b.yearBuilt == null) return -1;
+
+    return a.yearBuilt - b.yearBuilt;
+  });
+} else if (sortBy === "biggest") {
+  results = [...results].sort((a, b) => {
+    const aSize = Number(a.squareFootage);
+    const bSize = Number(b.squareFootage);
+
+    if (!Number.isFinite(aSize)) return 1;
+    if (!Number.isFinite(bSize)) return -1;
+
+    return bSize - aSize;
+  });
+}
 
   function clearAll() {
     setQuery("");
     setAgeFilter("all");
-    setAvailabilityFilter("all");
     setSizeFilter("all");
     setSortBy("default");
   }
 
-  const activeCount = [ageFilter, availabilityFilter, sizeFilter].filter(
-    (v) => v !== "all"
-  ).length;
+  const activeCount = [ageFilter, sizeFilter].filter(
+  (v) => v !== "all"
+).length;
 
   return (
     <div className="search-page">
       <header className="search-page-header">
         <h1>Find a rental property</h1>
         <p>
-          Search by name, address, city, or zip. Filter by age, availability,
-          and size.
-        </p>
+           Search by name, address, city, or zip. Filter properties by age and size.
+            </p>
       </header>
 
       <div className="search-page-searchbar">
@@ -159,38 +173,7 @@ function SearchPage() {
           </div>
 
           <div className="filter-group">
-            <p className="filter-label">Availability</p>
-            <label>
-              <input
-                type="radio"
-                name="availability"
-                checked={availabilityFilter === "all"}
-                onChange={() => setAvailabilityFilter("all")}
-              />
-              All
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="availability"
-                checked={availabilityFilter === "available"}
-                onChange={() => setAvailabilityFilter("available")}
-              />
-              Has vacancies
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="availability"
-                checked={availabilityFilter === "full"}
-                onChange={() => setAvailabilityFilter("full")}
-              />
-              Fully occupied
-            </label>
-          </div>
-
-          <div className="filter-group">
-            <p className="filter-label">Number of apartments</p>
+            <p className="filter-label">Property Size</p>
             <label>
               <input
                 type="radio"
@@ -207,7 +190,7 @@ function SearchPage() {
                 checked={sizeFilter === "small"}
                 onChange={() => setSizeFilter("small")}
               />
-              Small (1–10)
+              Small (&lt;800 sq ft)
             </label>
             <label>
               <input
@@ -216,7 +199,7 @@ function SearchPage() {
                 checked={sizeFilter === "medium"}
                 onChange={() => setSizeFilter("medium")}
               />
-              Medium (11–50)
+              Medium (800–1500 sq ft)
             </label>
             <label>
               <input
@@ -225,7 +208,7 @@ function SearchPage() {
                 checked={sizeFilter === "large"}
                 onChange={() => setSizeFilter("large")}
               />
-              Large (51+)
+              Large (&gt;1500 sq ft)
             </label>
           </div>
         </aside>
@@ -248,8 +231,7 @@ function SearchPage() {
                 <option value="default">Best match</option>
                 <option value="newest">Newest properties</option>
                 <option value="oldest">Oldest properties</option>
-                <option value="cheapest">Rent: low to high</option>
-                <option value="biggest">Most apartments</option>
+                <option value="biggest">Largest properties</option>
               </select>
             </div>
           )}
@@ -269,62 +251,58 @@ function SearchPage() {
               <p>Try a different search term or clear some filters.</p>
             </div>
           )}
+{!isLoading && !error && results.length > 0 && (
+  <div className="property-grid">
+    {results.map((p) => {
+      const age = p.yearBuilt
+        ? new Date().getFullYear() - p.yearBuilt
+        : null;
 
-          {!isLoading && !error && results.length > 0 && (
-            <div className="property-grid">
-              {results.map((p) => {
-                const vacant = p.totalUnits - p.occupiedUnits;
-                const age = new Date().getFullYear() - p.yearBuilt;
-                const occupancy = Math.round(
-                  (p.occupiedUnits / p.totalUnits) * 100
-                );
+      return (
+        <Link
+          to={`/properties/${p.id}`}
+          key={p.id}
+          className="property-card"
+        >
+          <div className="property-card-top">
+            <h3>{p.name}</h3>
 
-                return (
-                  <Link
-                    to={`/properties/${p.id}`}
-                    key={p.id}
-                    className="property-card"
-                  >
-                    <div className="property-card-top">
-                      <h3>{p.name}</h3>
-                      <div className="property-card-badges">
-                        {vacant > 0 ? (
-                          <span className="badge badge-success">
-                            {vacant} vacant
-                          </span>
-                        ) : (
-                          <span className="badge badge-danger">Full</span>
-                        )}
-                        {age <= 5 && (
-                          <span className="badge badge-info">New</span>
-                        )}
-                      </div>
-                    </div>
+            <div className="property-card-badges">
+              {p.propertyType && (
+                <span className="badge badge-info">
+                  {p.propertyType}
+                </span>
+              )}
 
-                    <p className="property-card-address">
-                      {p.address}, {p.city} {p.zip}
-                    </p>
-
-                    <ul className="property-card-info">
-                      <li>{p.totalUnits} apartments</li>
-                      <li>Built {p.yearBuilt}</li>
-                      <li>From ${p.rentFrom}/mo</li>
-                    </ul>
-
-                    <div className="property-card-bar">
-                      <div
-                        className="property-card-bar-fill"
-                        style={{ width: `${occupancy}%` }}
-                      />
-                    </div>
-                    <p className="property-card-occupancy">
-                      {occupancy}% occupied
-                    </p>
-                  </Link>
-                );
-              })}
+              {age !== null && age <= 5 && (
+                <span className="badge badge-success">
+                  New
+                </span>
+              )}
             </div>
+          </div>
+
+          <p className="property-card-address">
+            {p.address}, {p.city} {p.state} {p.zip}
+          </p>
+
+          <ul className="property-card-info">
+            <li>{p.bedrooms} bedrooms</li>
+            <li>{p.bathrooms} bathrooms</li>
+            <li>{p.squareFootage} sq ft</li>
+            {p.yearBuilt && <li>Built {p.yearBuilt}</li>}
+          </ul>
+
+          {p.totalUnits && (
+            <p className="property-card-units">
+              {p.totalUnits} units
+            </p>
           )}
+        </Link>
+      );
+    })}
+  </div>
+)}
         </div>
       </div>
     </div>
