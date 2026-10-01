@@ -1,1 +1,32 @@
-[]
+   [
+     {
+       "id": "1",
+       "formattedAddress": "123 Main St, Austin, TX 78701",
+       "city": "Austin",
+       "state": "TX",
+       "propertyType": "Single Family",
+       "bedrooms": 3,
+       "bathrooms": 2,
+       "squareFootage": 1500
+     },
+     {
+       "id": "2",
+       "formattedAddress": "456 Oak Ave, Austin, TX 78702",
+       "city": "Austin",
+       "state": "TX",
+       "propertyType": "Condo",
+       "bedrooms": 2,
+       "bathrooms": 1,
+       "squareFootage": 950
+     },
+     {
+       "id": "3",
+       "formattedAddress": "789 Pine Rd, Austin, TX 78703",
+       "city": "Austin",
+       "state": "TX",
+       "propertyType": "Townhouse",
+       "bedrooms": 4,
+       "bathrooms": 3,
+       "squareFootage": 2100
+     }
+   ]
