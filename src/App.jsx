@@ -1,7 +1,8 @@
 import { Link, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Properties from "./pages/Properties";
-import PropertyDetails from "./pages/PropertyDetails";
+import SearchPage from "./pages/SearchPage/SearchPage";
+import PropertyDetailsPage from "./pages/PropertyDetailsPage/PropertyDetails";
 
 function App() {
   return (
@@ -13,8 +14,8 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/properties" element={<Properties />} />
-        <Route path="/properties/:id" element={<PropertyDetails />} />
+        <Route path="/properties" element={<SearchPage />} />
+        <Route path="/properties/:id" element={<PropertyDetailsPage />} />
       </Routes>
     </>
   );
