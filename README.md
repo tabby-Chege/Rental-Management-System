@@ -1,16 +1,43 @@
-# React + Vite
+# Rental Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React application built with Vite and React Router that enables property managers and tenants to browse rental listings, search properties, and view detailed property information using the RentCast API.
 
-Currently, two official plugins are available:
+## Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This project provides a simple rental property management interface with property search, filtering, dynamic property details, client-side routing, and responsive UI components.
 
-## React Compiler
+## Key Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Interactive Property Search:** Search and filter properties by name, address, city, state, or ZIP code.
+- **External API Integration:** Property data is retrieved through the RentCast API `/properties` endpoint, with mock data available for development and testing.
+- **Property Details View:** Dynamic routing using `/properties/:id` displays detailed property information.
+- **Property Filtering:** Filter properties by property age and size.
+- **Property Sorting:** Sort listings by newest, oldest, or largest.
+- **Responsive Navigation:** Client-side navigation using React Router.
 
-## Expanding the Oxlint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- **Frontend Framework:** React 19.2.8 (Vite)
+- **Routing:** React Router DOM 7.18.4
+- **Styling:** Standard CSS
+- **Data Source:** RentCast API
+- **Development:** JavaScript, Git, and GitHub
+
+## Team Contributions
+
+- **Tabby:** React Router setup, navigation, base project structure, and API integration coordination
+- **Sonia:** RentCast API integration and data-fetching helpers
+- **David:** Property cards component and property listing display
+- **Luice:** Search filtering, input controls, and property details page
+- **Zack:** UI/CSS integration and project documentation
+
+## Project Structure
+
+```text
+src/
+├── api/             # API helper functions and RentCast integration
+├── Components/      # Reusable UI components
+├── data/            # Mock data and sample properties
+├── pages/           # Main route views and page components
+├── App.jsx          # Main application routes
+└── App.css          # Application styling
