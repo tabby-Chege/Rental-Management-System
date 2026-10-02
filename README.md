@@ -1,16 +1,36 @@
-# React + Vite
+# Rental Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React application built with Vite and React Router that enables property managers and tenants to browse rental listings, search properties by city/state, and inspect detailed real-time market data integrated with the RentCast API.
 
-Currently, two official plugins are available:
+## Project Overview
+This project consolidates property data fetching, dynamic search filtering, client-side routing, and responsive UI components into a single-page application (SPA).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Key Features
+- **Interactive Property Search:** Filter properties by targeted US cities and states.
+- **Real-Time Data Integration:** Live data requests powered by the RentCast API (`/properties` endpoint).
+- **Property Details View:** Dynamic routing (`/properties/:id`) for in-depth listing attributes.
+- **Responsive Navigation:** Clean SPA client-side routing via React Router DOM.
 
-## React Compiler
+## Tech Stack
+- **Frontend Framework:** React 18 (Vite)
+- **Routing:** React Router DOM v6
+- **Styling:** Standard CSS (Custom Variables & Modern Layout Grids)
+- **Data Source:** RentCast API
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Team Contributions
+- **Tabby:** React Router Setup, Navigation Bar & Base Layout Shell
+- **Sonia:** RentCast API Integration & Data Fetching Helpers
+- **David:** Property Cards Component & Listing Display Layout
+- **Luice:** Search Filtering Logic, Input Controls & Property Details Page
+- **Zack:** Project Lead, UI/CSS Integration, System Architecture & Documentation
 
-## Expanding the Oxlint configuration
+## Project Structure
+```text
+src/
+├── api/          # API helper functions & RentCast integration
+├── components/   # Reusable UI components (PropertyCard, Navbar, etc.)
+├── data/         # Mock data & fallback configurations (cities, sample properties)
+├── pages/        # Main route views (Home, Properties, SearchPage, PropertyDetails)
+├── App.jsx       # Core router setup & app layout shell
+└── App.css       # Global design system & theme variables
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
