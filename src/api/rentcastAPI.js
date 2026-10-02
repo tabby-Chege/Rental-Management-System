@@ -1,4 +1,5 @@
 import sampleProperties from "../data/sampleProperties.json";
+import { filterByLocation } from "../utils/propertySearch";
 
 const BASE_URL = "https://api.rentcast.io/v1";
 const API_KEY = import.meta.env.VITE_RENTCAST_API_KEY;
@@ -12,6 +13,9 @@ async function request(path, params = {}) {
   const url = `${BASE_URL}${path}${query ? `?${query}` : ""}`;
 
   if (cache.has(url)) return cache.get(url);
+  if (!API_KEY) {
+    throw new Error("RentCast API key is missing. Set VITE_RENTCAST_API_KEY and reload.");
+  }
 
   let res;
   try {
@@ -33,7 +37,7 @@ async function request(path, params = {}) {
 
 // Returns an array of properties for a US city, e.g. searchProperties("Austin", "TX")
 export async function searchProperties(city, state, limit = 20) {
-  if (USE_MOCK) return sampleProperties;
+  if (USE_MOCK) return filterByLocation(sampleProperties, city, state, limit);
   return request("/properties", { city, state, limit });
 }
 

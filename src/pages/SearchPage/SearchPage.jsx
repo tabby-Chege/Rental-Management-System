@@ -3,99 +3,54 @@ import { Link } from "react-router-dom";
 import SearchBar from "../../Components/SearchBar/SearchBar";
 import { searchProperties } from "../../api/rentcastAPI";
 import { normalizeProperty } from "../../utils/propertyAdapter";
+import { CITIES } from "../../data/cities";
+import { filterProperties } from "../../utils/propertySearch";
 import "./SearchPage.css";
+
+const CURRENT_YEAR = new Date().getFullYear();
+
 function SearchPage() {
   const [properties, setProperties] = useState([]);
+  const [selectedCityLabel, setSelectedCityLabel] = useState(CITIES[0].label);
+  const [retryCount, setRetryCount] = useState(0);
   const [query, setQuery] = useState("");
   const [ageFilter, setAgeFilter] = useState("all");
   const [sizeFilter, setSizeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("default");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const selectedCity = CITIES.find((city) => city.label === selectedCityLabel) ?? CITIES[0];
 
-useEffect(() => {
-  async function loadProperties() {
-    try {
-      const data = await searchProperties("Austin", "TX");
-      const normalizedProperties = data.map(normalizeProperty);
+  useEffect(() => {
+    let ignore = false;
 
-      setProperties(normalizedProperties);
-    } catch (err) {
-      setError(err.message || "Could not load properties. Please try again.");
-    } finally {
-      setIsLoading(false);
+    async function loadProperties() {
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const data = await searchProperties(selectedCity.city, selectedCity.state);
+        if (!Array.isArray(data)) {
+          throw new Error("The property service returned an unexpected response.");
+        }
+        if (!ignore) setProperties(data.map(normalizeProperty));
+      } catch (err) {
+        if (!ignore) {
+          setProperties([]);
+          setError(err.message || "Could not load properties. Please try again.");
+        }
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
     }
-  }
 
-  loadProperties();
-}, []);
- function matchesSearch(p) {
-  if (!query) return true;
+    loadProperties();
+    return () => {
+      ignore = true;
+    };
+  }, [selectedCity, retryCount]);
 
-  const t = query.toLowerCase();
-
-  return (
-    p.name.toLowerCase().includes(t) ||
-    p.address.toLowerCase().includes(t) ||
-    p.city.toLowerCase().includes(t) ||
-    p.state.toLowerCase().includes(t) ||
-    p.zip.toLowerCase().includes(t)
-  );
-}
-  function matchesAge(p) {
-    if (ageFilter === "all") return true;
-    const age = new Date().getFullYear() - p.yearBuilt;
-    if (ageFilter === "new") return age <= 5;
-    if (ageFilter === "recent") return age > 5 && age <= 15;
-    if (ageFilter === "old") return age > 15;
-    return true;
-  }
-
-function matchesSize(p) {
-  if (sizeFilter === "all") return true;
-
-  const size = Number(p.squareFootage);
-
-  if (!Number.isFinite(size)) return false;
-
-  if (sizeFilter === "small") return size < 800;
-  if (sizeFilter === "medium") return size >= 800 && size <= 1500;
-  if (sizeFilter === "large") return size > 1500;
-
-  return true;
-}
-  let results = properties.filter(
-    (p) =>
-      matchesSearch(p) &&
-      matchesAge(p) &&
-      matchesSize(p)
-  );
-
-if (sortBy === "newest") {
-  results = [...results].sort((a, b) => {
-    if (a.yearBuilt == null) return 1;
-    if (b.yearBuilt == null) return -1;
-
-    return b.yearBuilt - a.yearBuilt;
-  });
-} else if (sortBy === "oldest") {
-  results = [...results].sort((a, b) => {
-    if (a.yearBuilt == null) return 1;
-    if (b.yearBuilt == null) return -1;
-
-    return a.yearBuilt - b.yearBuilt;
-  });
-} else if (sortBy === "biggest") {
-  results = [...results].sort((a, b) => {
-    const aSize = Number(a.squareFootage);
-    const bSize = Number(b.squareFootage);
-
-    if (!Number.isFinite(aSize)) return 1;
-    if (!Number.isFinite(bSize)) return -1;
-
-    return bSize - aSize;
-  });
-}
+  const results = filterProperties(properties, { query, ageFilter, sizeFilter, sortBy });
 
   function clearAll() {
     setQuery("");
@@ -105,8 +60,8 @@ if (sortBy === "newest") {
   }
 
   const activeCount = [ageFilter, sizeFilter].filter(
-  (v) => v !== "all"
-).length;
+    (value) => value !== "all"
+  ).length + Number(Boolean(query)) + Number(sortBy !== "default");
 
   return (
     <div className="search-page">
@@ -119,6 +74,20 @@ if (sortBy === "newest") {
 
       <div className="search-page-searchbar">
         <SearchBar onSearch={setQuery} isLoading={isLoading} />
+      </div>
+
+      <div className="search-location">
+        <label htmlFor="property-city">Location</label>
+        <select
+          id="property-city"
+          value={selectedCityLabel}
+          onChange={(event) => setSelectedCityLabel(event.target.value)}
+          disabled={isLoading}
+        >
+          {CITIES.map((city) => (
+            <option key={city.label} value={city.label}>{city.label}</option>
+          ))}
+        </select>
       </div>
 
       <div className="search-page-layout">
@@ -159,7 +128,7 @@ if (sortBy === "newest") {
                 checked={ageFilter === "recent"}
                 onChange={() => setAgeFilter("recent")}
               />
-              Recent (5–15 yrs)
+              Recent (6–15 yrs)
             </label>
             <label>
               <input
@@ -168,7 +137,7 @@ if (sortBy === "newest") {
                 checked={ageFilter === "old"}
                 onChange={() => setAgeFilter("old")}
               />
-              Old (15+ yrs)
+              Old (16+ yrs)
             </label>
           </div>
 
@@ -214,13 +183,20 @@ if (sortBy === "newest") {
         </aside>
 
         <div className="results-area">
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="error-message" role="alert">
+              <p>{error}</p>
+              <button type="button" onClick={() => setRetryCount((count) => count + 1)}>
+                Try again
+              </button>
+            </div>
+          )}
 
           {!error && !isLoading && (
             <div className="results-header">
               <p className="results-count">
                 Showing <strong>{results.length}</strong> of {properties.length}{" "}
-                properties
+                properties in {selectedCity.label}
               </p>
 
               <select
@@ -247,15 +223,15 @@ if (sortBy === "newest") {
           {!isLoading && !error && results.length === 0 && (
             <div className="empty-state">
               <div className="empty-state-icon">🔎</div>
-              <h3>No properties match your search</h3>
-              <p>Try a different search term or clear some filters.</p>
+              <h3>No properties found for your selection</h3>
+              <p>Try another location, search term, or clear one of the filters.</p>
             </div>
           )}
 {!isLoading && !error && results.length > 0 && (
   <div className="property-grid">
     {results.map((p) => {
       const age = p.yearBuilt
-        ? new Date().getFullYear() - p.yearBuilt
+        ? CURRENT_YEAR - p.yearBuilt
         : null;
 
       return (

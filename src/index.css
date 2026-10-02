@@ -1,4 +1,60 @@
 :root {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  color: #1b2824;
+  background: #f3f6f4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  color-scheme: light;
+  --ink: #1b2824;
+  --muted: #63716c;
+  --canvas: #f3f6f4;
+  --surface: #ffffff;
+  --line: #dce5e0;
+  --accent: #176b57;
+  --accent-hover: #105644;
+  --accent-soft: #e1f0ea;
+  --highlight: #d77a4d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 3px solid rgba(23, 107, 87, 0.35);
+  outline-offset: 3px;
+}
+
+#root {
+  min-height: 100vh;
+}:root {
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -108,4 +164,34 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+:root {
+  --text: #63716c;
+  --text-h: #1b2824;
+  --bg: #f3f6f4;
+  --border: #dce5e0;
+  --code-bg: #e9efeb;
+  --accent: #176b57;
+  --accent-bg: #e1f0ea;
+  --accent-border: rgba(23, 107, 87, 0.5);
+  --social-bg: #ffffff;
+  --sans: "Avenir Next", "Segoe UI", sans-serif;
+  --heading: Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, Consolas, monospace;
+  font: 16px/1.5 var(--sans);
+  letter-spacing: 0;
+  color-scheme: light;
+  color: #1b2824;
+  background: #f3f6f4;
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+  border: 0;
+  min-height: 100vh;
+  display: block;
 }

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { searchProperties } from "../../api/rentcastAPI";
+import { getPropertyById, searchProperties } from "../../api/rentcastAPI";
 import { normalizeProperty } from "../../utils/propertyAdapter";
 import "./PropertyDetail.css";
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 function PropertyDetailsPage() {
   const { id } = useParams();
@@ -12,39 +14,50 @@ function PropertyDetailsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-  async function loadProperty() {
-    try {
-      const data = await searchProperties("Austin", "TX");
-      const normalizedProperties = data.map(normalizeProperty);
+    let ignore = false;
 
-      const found = normalizedProperties.find(
-        (p) => String(p.id) === String(id)
-      );
+    async function loadProperty() {
+      setIsLoading(true);
+      setError("");
+      setProperty(null);
+      setRelated([]);
 
-      if (!found) {
-        setError("Property not found.");
-      } else {
-        setProperty(found);
+      try {
+        const data = await getPropertyById(id);
+        if (ignore) return;
+        if (!data) {
+          setError("Property not found.");
+          return;
+        }
 
-        setRelated(
-          normalizedProperties
-            .filter(
-              (p) =>
-                String(p.id) !== String(id) &&
-                p.city === found.city
-            )
-            .slice(0, 3)
-        );
+        const propertyData = normalizeProperty(data);
+        setProperty(propertyData);
+
+        try {
+          const relatedData = await searchProperties(propertyData.city, propertyData.state);
+          if (!ignore && Array.isArray(relatedData)) {
+            setRelated(
+              relatedData
+                .map(normalizeProperty)
+                .filter((item) => String(item.id) !== String(id))
+                .slice(0, 3)
+            );
+          }
+        } catch {
+          // Related listings are optional; the requested property remains usable.
+        }
+      } catch (err) {
+        if (!ignore) setError(err.message || "Could not load property.");
+      } finally {
+        if (!ignore) setIsLoading(false);
       }
-    } catch (err) {
-      setError(err.message || "Could not load property.");
-    } finally {
-      setIsLoading(false);
     }
-  }
 
-  loadProperty();
-}, [id]);
+    loadProperty();
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -72,7 +85,7 @@ function PropertyDetailsPage() {
   }
 
  const age = property.yearBuilt
-  ? new Date().getFullYear() - property.yearBuilt
+  ? CURRENT_YEAR - property.yearBuilt
   : null;
 
   return (

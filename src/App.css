@@ -1,4 +1,140 @@
-.counter {
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--canvas);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76px;
+  padding: 0 clamp(20px, 5vw, 64px);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.app-brand-mark {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-family: Georgia, serif;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.app-brand-name {
+  display: grid;
+  gap: 1px;
+}
+
+.app-brand-name strong {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.app-brand-name small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.app-navigation {
+  display: flex;
+  align-self: stretch;
+  align-items: stretch;
+}
+
+.app-navigation-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.app-navigation-link:hover,
+.app-navigation-link.is-active {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+}
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px clamp(20px, 5vw, 64px);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.not-found {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 96px 24px;
+}
+
+.not-found-code {
+  margin: 0 0 8px;
+  color: var(--highlight);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.not-found h1 {
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 36px;
+  font-weight: 500;
+}
+
+@media (max-width: 560px) {
+  .app-header {
+    min-height: 66px;
+    padding-inline: 16px;
+  }
+
+  .app-brand-name strong {
+    font-size: 14px;
+  }
+
+  .app-navigation-link {
+    font-size: 13px;
+  }
+
+  .app-footer {
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 20px;
+  }
+}.counter {
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;

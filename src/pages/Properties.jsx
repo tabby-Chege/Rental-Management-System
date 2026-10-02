@@ -17,9 +17,6 @@ function Properties() {
   useEffect(() => {
     let ignore = false; // stops an old request from overwriting a newer one
 
-    setLoading(true);
-    setError(null);
-
     searchProperties(selectedCity.city, selectedCity.state)
       .then((data) => {
         if (!ignore) setProperties(data);
@@ -39,6 +36,18 @@ function Properties() {
     };
   }, [selectedCity.city, selectedCity.state, retryCount]);
 
+  function handleCityChange(event) {
+    setLoading(true);
+    setError(null);
+    setSelectedLabel(event.target.value);
+  }
+
+  function handleRetry() {
+    setLoading(true);
+    setError(null);
+    setRetryCount((count) => count + 1);
+  }
+
   return (
     <div className="properties-page">
       <h1>Properties</h1>
@@ -49,7 +58,7 @@ function Properties() {
         <select
           id="city-select"
           value={selectedLabel}
-          onChange={(e) => setSelectedLabel(e.target.value)}
+          onChange={handleCityChange}
         >
           {CITIES.map((c) => (
             <option key={c.label} value={c.label}>
@@ -64,7 +73,7 @@ function Properties() {
       {error && (
         <div className="status status--error">
           <p>{error}</p>
-          <button onClick={() => setRetryCount((n) => n + 1)}>Try again</button>
+          <button onClick={handleRetry}>Try again</button>
         </div>
       )}
 
