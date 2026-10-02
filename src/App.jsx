@@ -1,6 +1,5 @@
 import { Link, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import Properties from "./pages/Properties";
 import SearchPage from "./pages/SearchPage/SearchPage";
 import PropertyDetailsPage from "./pages/PropertyDetailsPage/PropertyDetails";
 
