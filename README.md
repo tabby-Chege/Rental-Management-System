@@ -34,3 +34,30 @@ src/
 ├── App.jsx       # Core router setup & app layout shell
 └── App.css       # Global design system & theme variables
 
+## Getting Started
+
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) (v16 or higher) installed on your system.
+ 
+ ### Installation
+ 1. **Clone the repository:**
+   '''bash
+    git clone git@github.com:tabby-Chege/Rental-Management-System.git
+    cd Rental-Management-System
+
+ 2.Install dependencies:
+    npm install
+
+ 3.Configure Environment Variables:
+    create a .env file in the root directory and add your RentCastAPI key:
+       VITE_RENTCAST_API_KEY=your_api_key_here
+
+
+ 4.Start the local Dev Server:
+    npm run dev
+ 
+ 5.Open the browser:
+    Navigate to http://localhost:5173/ to view the application
+ 
+  ##  License
+​This project is licensed under the MIT License - see the LICENSE file for details.
